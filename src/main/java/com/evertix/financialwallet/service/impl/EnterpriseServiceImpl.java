@@ -88,7 +88,7 @@ public class EnterpriseServiceImpl implements EnterpriseService {
     @Override
     public ResponseEntity<MessageResponse> addEnterprise(EnterpriseRequest enterprise, Long economicActivityId, Long managerId) {
         try {
-            //Validate if Economic Activity Exists
+            // Validate if Economic Activity Exists
             EconomicActivity economicActivity = this.economicActivityRepository.findById(economicActivityId).orElse(null);
             if (economicActivity == null) {
                 return ResponseEntity
