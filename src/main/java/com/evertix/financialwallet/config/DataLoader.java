@@ -1,18 +1,29 @@
 package com.evertix.financialwallet.config;
 
 import com.evertix.financialwallet.model.EconomicActivity;
+import com.evertix.financialwallet.model.Rate;
 import com.evertix.financialwallet.model.Role;
 import com.evertix.financialwallet.model.TypeRate;
 import com.evertix.financialwallet.model.emuns.ERate;
 import com.evertix.financialwallet.model.emuns.ERole;
 import com.evertix.financialwallet.repository.EconomicActivityRepository;
+import com.evertix.financialwallet.repository.RateRepository;
 import com.evertix.financialwallet.repository.RoleRepository;
 import com.evertix.financialwallet.repository.TypeRateRepository;
 import com.evertix.financialwallet.security.request.SignUpRequest;
 import com.evertix.financialwallet.service.AuthService;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.Arrays;
+import java.util.Date;
+
+import static java.math.BigDecimal.ROUND_HALF_EVEN;
 
 @Component
 public class DataLoader {
@@ -20,13 +31,15 @@ public class DataLoader {
     private final AuthService authService;
     private final EconomicActivityRepository economicActivityRepository;
     private final TypeRateRepository typeRateRepository;
+    private final RateRepository rateRepository;
 
     public DataLoader(RoleRepository roleRepository, AuthService authService, EconomicActivityRepository economicActivityRepository,
-                      TypeRateRepository typeRateRepository) {
+                      TypeRateRepository typeRateRepository, RateRepository rateRepository) {
         this.roleRepository = roleRepository;
         this.authService = authService;
         this.economicActivityRepository = economicActivityRepository;
         this.typeRateRepository = typeRateRepository;
+        this.rateRepository = rateRepository;
         this.loadData();
     }
 
@@ -35,6 +48,17 @@ public class DataLoader {
         this.addUsers();
         this.addEconomicActivities();
         this.addRates();
+        this.addExample();
+    }
+
+    private void addExample() {
+        double rate = 14585;
+        double n = 150;
+        double a = rate/n;
+        this.rateRepository.saveAll(Arrays.asList(
+                new Rate(360, "Anual", 360, new BigDecimal(a).setScale(2, RoundingMode.HALF_EVEN),
+                        "Mensual", 30, LocalDate.parse("2020-08-30"))
+        ));
     }
 
     private void addRates() {
