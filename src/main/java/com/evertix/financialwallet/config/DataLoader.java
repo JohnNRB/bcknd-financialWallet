@@ -2,9 +2,12 @@ package com.evertix.financialwallet.config;
 
 import com.evertix.financialwallet.model.EconomicActivity;
 import com.evertix.financialwallet.model.Role;
+import com.evertix.financialwallet.model.TypeRate;
+import com.evertix.financialwallet.model.emuns.ERate;
 import com.evertix.financialwallet.model.emuns.ERole;
 import com.evertix.financialwallet.repository.EconomicActivityRepository;
 import com.evertix.financialwallet.repository.RoleRepository;
+import com.evertix.financialwallet.repository.TypeRateRepository;
 import com.evertix.financialwallet.security.request.SignUpRequest;
 import com.evertix.financialwallet.service.AuthService;
 import org.springframework.stereotype.Component;
@@ -16,11 +19,14 @@ public class DataLoader {
     private final RoleRepository roleRepository;
     private final AuthService authService;
     private final EconomicActivityRepository economicActivityRepository;
+    private final TypeRateRepository typeRateRepository;
 
-    public DataLoader(RoleRepository roleRepository, AuthService authService, EconomicActivityRepository economicActivityRepository) {
+    public DataLoader(RoleRepository roleRepository, AuthService authService, EconomicActivityRepository economicActivityRepository,
+                      TypeRateRepository typeRateRepository) {
         this.roleRepository = roleRepository;
         this.authService = authService;
         this.economicActivityRepository = economicActivityRepository;
+        this.typeRateRepository = typeRateRepository;
         this.loadData();
     }
 
@@ -28,6 +34,14 @@ public class DataLoader {
         this.addRoles();
         this.addUsers();
         this.addEconomicActivities();
+        this.addRates();
+    }
+
+    private void addRates() {
+        this.typeRateRepository.saveAll(Arrays.asList(
+                new TypeRate(ERate.RATE_NOMINAL),
+                new TypeRate(ERate.RATE_EFFECTIVE)
+        ));
     }
 
     private void addEconomicActivities() {
