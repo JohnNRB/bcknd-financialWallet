@@ -1,29 +1,18 @@
 package com.evertix.financialwallet.config;
 
-import com.evertix.financialwallet.model.EconomicActivity;
-import com.evertix.financialwallet.model.Rate;
-import com.evertix.financialwallet.model.Role;
-import com.evertix.financialwallet.model.TypeRate;
+import com.evertix.financialwallet.model.*;
 import com.evertix.financialwallet.model.emuns.ERate;
 import com.evertix.financialwallet.model.emuns.ERole;
-import com.evertix.financialwallet.repository.EconomicActivityRepository;
-import com.evertix.financialwallet.repository.RateRepository;
-import com.evertix.financialwallet.repository.RoleRepository;
-import com.evertix.financialwallet.repository.TypeRateRepository;
+import com.evertix.financialwallet.model.emuns.EWallet;
+import com.evertix.financialwallet.repository.*;
 import com.evertix.financialwallet.security.request.SignUpRequest;
 import com.evertix.financialwallet.service.AuthService;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
 import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.Month;
 import java.util.Arrays;
-import java.util.Date;
-
-import static java.math.BigDecimal.ROUND_HALF_EVEN;
 
 @Component
 public class DataLoader {
@@ -32,14 +21,16 @@ public class DataLoader {
     private final EconomicActivityRepository economicActivityRepository;
     private final TypeRateRepository typeRateRepository;
     private final RateRepository rateRepository;
+    private final TypeWalletRepository typeWalletRepository;
 
     public DataLoader(RoleRepository roleRepository, AuthService authService, EconomicActivityRepository economicActivityRepository,
-                      TypeRateRepository typeRateRepository, RateRepository rateRepository) {
+                      TypeRateRepository typeRateRepository, RateRepository rateRepository, TypeWalletRepository typeWalletRepository) {
         this.roleRepository = roleRepository;
         this.authService = authService;
         this.economicActivityRepository = economicActivityRepository;
         this.typeRateRepository = typeRateRepository;
         this.rateRepository = rateRepository;
+        this.typeWalletRepository = typeWalletRepository;
         this.loadData();
     }
 
@@ -49,6 +40,15 @@ public class DataLoader {
         this.addEconomicActivities();
         this.addRates();
         this.addExample();
+        this.addWallets();
+    }
+
+    private void addWallets() {
+        this.typeWalletRepository.saveAll(Arrays.asList(
+                new TypeWallet(EWallet.WALLET_LETTERS),
+                new TypeWallet(EWallet.WALLET_BILLS),
+                new TypeWallet(EWallet.WALLET_RECEIPTS_OF_HONORARY)
+        ));
     }
 
     private void addExample() {
