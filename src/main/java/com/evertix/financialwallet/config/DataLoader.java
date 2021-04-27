@@ -1,7 +1,9 @@
 package com.evertix.financialwallet.config;
 
+import com.evertix.financialwallet.model.EconomicActivity;
 import com.evertix.financialwallet.model.Role;
 import com.evertix.financialwallet.model.emuns.ERole;
+import com.evertix.financialwallet.repository.EconomicActivityRepository;
 import com.evertix.financialwallet.repository.RoleRepository;
 import com.evertix.financialwallet.security.request.SignUpRequest;
 import com.evertix.financialwallet.service.AuthService;
@@ -13,16 +15,30 @@ import java.util.Arrays;
 public class DataLoader {
     private final RoleRepository roleRepository;
     private final AuthService authService;
+    private final EconomicActivityRepository economicActivityRepository;
 
-    public DataLoader(RoleRepository roleRepository, AuthService authService) {
+    public DataLoader(RoleRepository roleRepository, AuthService authService, EconomicActivityRepository economicActivityRepository) {
         this.roleRepository = roleRepository;
         this.authService = authService;
+        this.economicActivityRepository = economicActivityRepository;
         this.loadData();
     }
 
     private void loadData() {
         this.addRoles();
         this.addUsers();
+        this.addEconomicActivities();
+    }
+
+    private void addEconomicActivities() {
+        this.economicActivityRepository.saveAll(Arrays.asList(
+                new EconomicActivity("Bebidas"),
+                new EconomicActivity("Vehículos & Accesorios"),
+                new EconomicActivity("Elaboración de productos Alimenticios"),
+                new EconomicActivity("Agricultura, agroindustria y ganadería"),
+                new EconomicActivity("Turismo, hoteles, restaurantes y entretenimiento"),
+                new EconomicActivity("Servicios de sistemas, equipos de tecnología y comunicaciones")
+        ));
     }
 
     private void addUsers() {
