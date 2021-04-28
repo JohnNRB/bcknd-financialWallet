@@ -52,8 +52,8 @@ public class Rate implements Serializable {
     @Column(nullable = false, updatable = false)
     private LocalDate discountAt;
 
-    @ManyToOne(fetch = FetchType.EAGER, optional = true)
-    @JoinColumn(name = "typeRate_id", nullable = true)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @JoinColumn(name = "typeRate_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private TypeRate typeRate;
 

@@ -46,11 +46,11 @@ public class Discount {
     private Integer dayPeriod;
 
     @DecimalMin(value = "0.00")
-    @Digits(integer = 2, fraction = 7)
+    @Digits(integer = 3, fraction = 7)
     private BigDecimal rateEffective;
 
     @DecimalMin(value = "0.00")
-    @Digits(integer = 2, fraction = 7)
+    @Digits(integer = 3, fraction = 7)
     private BigDecimal rateDiscount;
 
     @DecimalMin(value = "0.00")
@@ -70,7 +70,7 @@ public class Discount {
     private BigDecimal valueDelivered;
 
     @DecimalMin(value = "0.00")
-    @Digits(integer = 2, fraction = 7)
+    @Digits(integer = 3, fraction = 7)
     private BigDecimal TCEA;
 
     public Discount(LocalDate initialAt, LocalDate expirationAt, BigDecimal valueNominal, BigDecimal retention) {

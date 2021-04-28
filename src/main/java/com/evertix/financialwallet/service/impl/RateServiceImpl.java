@@ -115,12 +115,12 @@ public class RateServiceImpl implements RateService {
             } else {
                 switch (typeRateName) {
                     case "RATE_NOMINAL":
-                        typeRate = typeRateRepository.findByName(ERate.RATE_NOMINAL).
-                                orElseThrow(() -> new RuntimeException("Sorry, Type Rate not found"));
+                        typeRate = typeRateRepository.findByName(ERate.RATE_NOMINAL)
+                                .orElseThrow(() -> new RuntimeException("Sorry, Type Rate not found"));
                         break;
                     case "RATE_EFFECTIVE":
-                        typeRate = typeRateRepository.findByName(ERate.RATE_EFFECTIVE).
-                                orElseThrow(() -> new RuntimeException("Sorry, Type Rate not found"));
+                        typeRate = typeRateRepository.findByName(ERate.RATE_EFFECTIVE)
+                                .orElseThrow(() -> new RuntimeException("Sorry, Type Rate not found"));
                         break;
                     default:
                         throw new RuntimeException("Sorry, Type Rate is wrong.");

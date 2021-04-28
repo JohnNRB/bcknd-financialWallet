@@ -10,7 +10,6 @@ import com.evertix.financialwallet.service.AuthService;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.Arrays;
 
@@ -18,16 +17,21 @@ import java.util.Arrays;
 public class DataLoader {
     private final RoleRepository roleRepository;
     private final AuthService authService;
+    private final UserRepository userRepository;
     private final EconomicActivityRepository economicActivityRepository;
+    private final EnterpriseRepository enterpriseRepository;
     private final TypeRateRepository typeRateRepository;
     private final RateRepository rateRepository;
     private final TypeWalletRepository typeWalletRepository;
 
-    public DataLoader(RoleRepository roleRepository, AuthService authService, EconomicActivityRepository economicActivityRepository,
+    public DataLoader(RoleRepository roleRepository, AuthService authService, UserRepository userRepository,
+                      EconomicActivityRepository economicActivityRepository, EnterpriseRepository enterpriseRepository,
                       TypeRateRepository typeRateRepository, RateRepository rateRepository, TypeWalletRepository typeWalletRepository) {
         this.roleRepository = roleRepository;
         this.authService = authService;
+        this.userRepository = userRepository;
         this.economicActivityRepository = economicActivityRepository;
+        this.enterpriseRepository = enterpriseRepository;
         this.typeRateRepository = typeRateRepository;
         this.rateRepository = rateRepository;
         this.typeWalletRepository = typeWalletRepository;
@@ -38,8 +42,9 @@ public class DataLoader {
         this.addRoles();
         this.addUsers();
         this.addEconomicActivities();
+        this.addEnterprises();
+        this.addTypeRates();
         this.addRates();
-        this.addExample();
         this.addWallets();
     }
 
@@ -51,21 +56,33 @@ public class DataLoader {
         ));
     }
 
-    private void addExample() {
-        double rate = 14585;
-        double n = 150;
-        double a = rate/n;
-        this.rateRepository.saveAll(Arrays.asList(
-                new Rate(360, "Anual", 360, new BigDecimal(a).setScale(2, RoundingMode.HALF_EVEN),
-                        "Mensual", 30, LocalDate.parse("2020-08-30"))
-        ));
+    private void addRates() {
+        TypeRate typeRateNominal = typeRateRepository.findByName(ERate.RATE_NOMINAL).orElse(null);
+        Rate rateNominal = new Rate(360, "Anual", 360, new BigDecimal(25), "Mensual",
+                30, LocalDate.parse("2021-04-21"));
+        rateNominal.setTypeRate(typeRateNominal);
+        this.rateRepository.save(rateNominal);
+
+        TypeRate typeRateEffective = typeRateRepository.findByName(ERate.RATE_EFFECTIVE).orElse(null);
+        Rate rateEffective = new Rate(360, "Anual", 360, new BigDecimal(25), "null",
+                0, LocalDate.parse("2021-04-21"));
+        rateEffective.setTypeRate(typeRateEffective);
+        this.rateRepository.save(rateEffective);
     }
 
-    private void addRates() {
+    private void addTypeRates() {
         this.typeRateRepository.saveAll(Arrays.asList(
                 new TypeRate(ERate.RATE_NOMINAL),
                 new TypeRate(ERate.RATE_EFFECTIVE)
         ));
+    }
+
+    private void addEnterprises() {
+        Enterprise firstEnterprise = new Enterprise("145896532", "Coca Cola SAC", "coca.cola@gmail.com", "AV. Arequipa",
+                "940178956");
+        firstEnterprise.setEconomicActivity(economicActivityRepository.findByName("Bebidas").orElse(null));
+        firstEnterprise.setManager(userRepository.findByUsername("MSAlbert").orElse(null));
+        enterpriseRepository.save(firstEnterprise);
     }
 
     private void addEconomicActivities() {
