@@ -11,6 +11,7 @@ import java.util.List;
 
 @Repository
 public interface WalletRepository extends JpaRepository<Wallet, Long> {
+    List<Wallet> findAllById(Long walletId);
     List<Wallet> findAllByTypeWalletNameAndEnterpriseId(EWallet name, Long enterpriseId);
     Page<Wallet> findAllByTypeWalletNameAndEnterpriseId(EWallet name, Long enterpriseId, Pageable pageable);
 }

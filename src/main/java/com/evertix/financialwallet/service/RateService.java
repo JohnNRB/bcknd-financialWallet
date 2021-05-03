@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 
 public interface RateService {
+    ResponseEntity<MessageResponse> getAllRate();
     ResponseEntity<MessageResponse> getAllRate(String typeRateName);
     ResponseEntity<MessageResponse> getAllRatePaginated(String typeRateName, Pageable pageable);
     ResponseEntity<MessageResponse> addRate(RateRequest rate, String typeRateName);

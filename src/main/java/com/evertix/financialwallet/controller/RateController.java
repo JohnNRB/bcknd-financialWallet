@@ -27,8 +27,16 @@ public class RateController {
     @Autowired
     RateService rateService;
 
+    @GetMapping("/all")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "View All Rate", description = "View All Rate",
+            security = @SecurityRequirement(name = "bearerAuth"), tags = {"Rate"})
+    public ResponseEntity<MessageResponse> getAll(){
+        return this.rateService.getAllRate();
+    }
+
     @GetMapping("/")
-    // @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "View All Rate by Type Rate", description = "View All Rate by Type Rate",
             security = @SecurityRequirement(name = "bearerAuth"), tags = {"Rate"})
     public ResponseEntity<MessageResponse> getAll(@RequestParam String typeRate){
@@ -36,7 +44,7 @@ public class RateController {
     }
 
     @GetMapping("/paged")
-    // @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "View All Rate paginated by Type Rate", description = "View All Rate paginated by Type Rate",
             parameters = {
                     @Parameter(in = ParameterIn.QUERY
@@ -55,7 +63,7 @@ public class RateController {
     }
 
     @PostMapping("/add")
-    // @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Add Rate", description = "Add Rate",
             security = @SecurityRequirement(name = "bearerAuth"), tags = {"Rate"})
     public ResponseEntity<MessageResponse> add(@RequestBody @Valid RateRequest rate,
@@ -64,7 +72,7 @@ public class RateController {
     }
 
     @PutMapping("/{rateId}")
-    // @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Update Rate", description = "Update Rate",
             security = @SecurityRequirement(name = "bearerAuth"), tags = {"Rate"})
     public ResponseEntity<MessageResponse> update(@RequestBody @Valid RateRequest rate,
@@ -73,7 +81,7 @@ public class RateController {
     }
 
     @DeleteMapping("/{rateId}")
-    // @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Delete Rate", description = "Delete Rate",
             security = @SecurityRequirement(name = "bearerAuth"), tags = {"Rate"})
     public ResponseEntity<MessageResponse> delete(@PathVariable Long rateId) {

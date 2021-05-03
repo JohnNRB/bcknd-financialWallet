@@ -42,8 +42,8 @@ public class Discount {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Rate rate;
 
-    @Max(value = 365)
-    private Integer dayPeriod;
+    @Max(value = 9999)
+    private Integer daysPeriod;
 
     @DecimalMin(value = "0.00")
     @Digits(integer = 3, fraction = 7)

@@ -7,6 +7,7 @@ import com.evertix.financialwallet.model.request.DiscountRequest;
 import org.springframework.http.ResponseEntity;
 
 public interface DiscountService extends FinancialService{
+    ResponseEntity<MessageResponse> getAllDiscount();
     ResponseEntity<MessageResponse> addDiscount(DiscountRequest discount, Long rateId);
     void financialOperation(DiscountRequest request, Discount discount, Rate rate);
 }

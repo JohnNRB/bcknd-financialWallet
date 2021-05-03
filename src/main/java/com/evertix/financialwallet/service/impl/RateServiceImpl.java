@@ -34,6 +34,30 @@ public class RateServiceImpl implements RateService {
     RateRepository rateRepository;
 
     @Override
+    public ResponseEntity<MessageResponse> getAllRate() {
+        try {
+            List<Rate> rateList = this.rateRepository.findAll();
+            if (rateList.isEmpty()) { return this.getNotRateContent(); }
+            MessageResponse response = MessageResponse.builder()
+                    .code(ResponseConstants.SUCCESS_CODE)
+                    .message(ResponseConstants.MSG_SUCCESS_CONS)
+                    .data(rateList)
+                    .build();
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            e.printStackTrace(pw);
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(MessageResponse.builder()
+                            .code(ResponseConstants.ERROR_CODE)
+                            .message("Internal Error: " + sw.toString())
+                            .build());
+        }
+    }
+
+    @Override
     public ResponseEntity<MessageResponse> getAllRate(String typeRateName) {
         try {
             // Identify Type Rate

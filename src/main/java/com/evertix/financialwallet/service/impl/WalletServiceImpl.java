@@ -24,6 +24,8 @@ import org.springframework.stereotype.Service;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,6 +45,53 @@ public class WalletServiceImpl implements WalletService {
 
     @Autowired
     WalletRepository walletRepository;
+
+    @Override
+    public ResponseEntity<MessageResponse> getAllWallet() {
+        try {
+            List<Wallet> walletList = this.walletRepository.findAll();
+            if (walletList.isEmpty()) { return this.getNotWalletContent(); }
+            MessageResponse response = MessageResponse.builder()
+                    .code(ResponseConstants.SUCCESS_CODE)
+                    .message(ResponseConstants.MSG_SUCCESS_CONS)
+                    .data(walletList)
+                    .build();
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            e.printStackTrace(pw);
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(MessageResponse.builder()
+                            .code(ResponseConstants.ERROR_CODE)
+                            .message("Internal Error: " + sw.toString())
+                            .build());
+        }
+    }
+
+    @Override
+    public ResponseEntity<MessageResponse> getWallet(Long walletId) {
+        try {
+            Wallet wallet = this.walletRepository.findById(walletId).orElse(null);
+            MessageResponse response = MessageResponse.builder()
+                    .code(ResponseConstants.SUCCESS_CODE)
+                    .message(ResponseConstants.MSG_SUCCESS_CONS)
+                    .data(wallet)
+                    .build();
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            e.printStackTrace(pw);
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(MessageResponse.builder()
+                            .code(ResponseConstants.ERROR_CODE)
+                            .message("Internal Error: " + sw.toString())
+                            .build());
+        }
+    }
 
     @Override
     public ResponseEntity<MessageResponse> getAllWallet(String typeWallet, Long enterpriseId) {
@@ -186,6 +235,9 @@ public class WalletServiceImpl implements WalletService {
             // Set Type Wallet & Enterprise
             saveWallet.setTypeWallet(typeWallets);
             saveWallet.setEnterprise(enterprise);
+            // Initial Total Value Delivered & Total Days Period
+            saveWallet.setValueTotalDelivered(new BigDecimal(0));
+            saveWallet.setDaysTotalPeriod(0);
             // Save Wallet
             walletRepository.save(saveWallet);
             return ResponseEntity
@@ -228,7 +280,7 @@ public class WalletServiceImpl implements WalletService {
                 if (!wallet.getDiscounts().contains(discount)) { discountList.add(discount); }
                 // Set Array's Discount
                 wallet.setDiscounts(discountList);
-                if (discount != null) { wallet.setValueTotalReceived(wallet.getValueTotalReceived().add(discount.getValueReceived())); }
+                if (discount != null) { wallet.setValueTotalDelivered(wallet.getValueTotalReceived().add(discount.getValueReceived())); }
                 // Save All
                 walletRepository.save(wallet);
             }
@@ -250,6 +302,62 @@ public class WalletServiceImpl implements WalletService {
                             .message("Internal Error: " + sw.toString())
                             .build());
         }
+    }
+
+    @Override
+    public ResponseEntity<MessageResponse> addDiscounts(Long walletId, Long discountId) {
+        try {
+            // Validate if Wallet Exists
+            Wallet wallet = this.walletRepository.findById(walletId).orElse(null);
+            if (wallet == null) {
+                return ResponseEntity
+                        .status(HttpStatus.BAD_REQUEST)
+                        .body(MessageResponse.builder()
+                                .code(ResponseConstants.ERROR_CODE)
+                                .message("Don't exists wallet with ID: " + walletId)
+                                .build());
+            }
+            // List<Discount> discountList = new ArrayList<>();
+            BigDecimal valueTCEA;
+            Discount discount = this.discountRepository.findById(discountId).orElse(null);
+            if (!wallet.getDiscounts().contains(discount)) { wallet.getDiscounts().add(discount); }
+            if (discount != null) {
+                // Set Days Total Period
+                wallet.setDaysTotalPeriod(wallet.getDaysTotalPeriod() + discount.getDaysPeriod());
+                // Set Value Total Received
+                wallet.setValueTotalReceived(wallet.getValueTotalReceived().add(discount.getValueReceived()));
+                // Set Value Total Delivered
+                wallet.setValueTotalDelivered(wallet.getValueTotalDelivered().add(discount.getValueDelivered()));
+                // Set Total TCEA
+                valueTCEA = this.TotalTCEA(wallet.getValueTotalReceived(), wallet.getValueTotalDelivered(), wallet.getDaysTotalPeriod(), discount.getRate().getDaysYear());
+                wallet.setValueTCEA(valueTCEA.setScale(7, RoundingMode.HALF_EVEN));
+            }
+            walletRepository.save(wallet);
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body(MessageResponse.builder()
+                            .code(ResponseConstants.SUCCESS_CODE)
+                            .message("Successful Add Discounts")
+                            .data(this.convertToResource(wallet))
+                            .build());
+        } catch (Exception e) {
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            e.printStackTrace(pw);
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(MessageResponse.builder()
+                            .code(ResponseConstants.ERROR_CODE)
+                            .message("Internal Error: " + sw.toString())
+                            .build());
+        }
+    }
+
+    private BigDecimal TotalTCEA(BigDecimal valueReceived, BigDecimal valueDelivered, Integer daysPeriod, Integer daysYear) {
+        double firstStep = daysYear.doubleValue() / daysPeriod.doubleValue();
+        double secondStep = valueDelivered.doubleValue() / valueReceived.doubleValue();
+        double TCEA = (Math.pow(secondStep, firstStep) - 1) * 100;
+        return new BigDecimal(TCEA);
     }
 
     private Wallet convertToEntity(WalletRequest wallet) { return modelMapper.map(wallet, Wallet.class); }

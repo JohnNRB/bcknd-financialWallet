@@ -20,6 +20,8 @@ import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.util.List;
+
 import static java.time.temporal.ChronoUnit.DAYS;
 
 @Service
@@ -32,6 +34,30 @@ public class DiscountServiceImpl implements DiscountService {
 
     @Autowired
     DiscountRepository discountRepository;
+
+    @Override
+    public ResponseEntity<MessageResponse> getAllDiscount() {
+        try {
+            List<Discount> discountList = this.discountRepository.findAll();
+            if (discountList.isEmpty()) { this.getNotDiscountContent(); }
+            MessageResponse response = MessageResponse.builder()
+                    .code(ResponseConstants.SUCCESS_CODE)
+                    .message(ResponseConstants.MSG_SUCCESS_CONS)
+                    .data(discountList)
+                    .build();
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            e.printStackTrace(pw);
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(MessageResponse.builder()
+                            .code(ResponseConstants.ERROR_CODE)
+                            .message("Internal Error: " + sw.toString())
+                            .build());
+        }
+    }
 
     @Override
     public ResponseEntity<MessageResponse> addDiscount(DiscountRequest discount, Long rateId) {
@@ -83,7 +109,7 @@ public class DiscountServiceImpl implements DiscountService {
         switch (rate.getTypeRate().getName().toString()) {
             case "RATE_NOMINAL":
                 daysPeriod = daysPeriod(request.getExpirationAt(), rate.getDiscountAt());
-                discount.setDayPeriod(daysPeriod);
+                discount.setDaysPeriod(daysPeriod);
 
                 rateEffective = rateEffectiveNominal(daysPeriod, rate.getValueRate(), rate.getDaysRate(), rate.getDaysCapitalization());
                 discount.setRateEffective(rateEffective.setScale(7, RoundingMode.HALF_EVEN));
@@ -109,7 +135,7 @@ public class DiscountServiceImpl implements DiscountService {
                 break;
             case "RATE_EFFECTIVE":
                 daysPeriod = daysPeriod(request.getExpirationAt(), rate.getDiscountAt());
-                discount.setDayPeriod(daysPeriod);
+                discount.setDaysPeriod(daysPeriod);
 
                 rateEffective = rateEffective(daysPeriod, rate.getValueRate());
                 discount.setRateEffective(rateEffective.setScale(7, RoundingMode.HALF_EVEN));
@@ -143,6 +169,15 @@ public class DiscountServiceImpl implements DiscountService {
         SaveDiscountRequest resource = modelMapper.map(discount, SaveDiscountRequest.class);
         resource.setRateName(discount.getRate().getTypeRate().getName().toString());
         return resource;
+    }
+
+    private ResponseEntity<MessageResponse> getNotDiscountContent(){
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(MessageResponse.builder()
+                        .code(ResponseConstants.WARNING_CODE)
+                        .message(ResponseConstants.MSG_WARNING_CONS)
+                        .data(null)
+                        .build());
     }
 
     @Override

@@ -8,8 +8,11 @@ import org.springframework.http.ResponseEntity;
 import java.util.List;
 
 public interface WalletService {
+    ResponseEntity<MessageResponse> getAllWallet();
+    ResponseEntity<MessageResponse> getWallet(Long walletId);
     ResponseEntity<MessageResponse> getAllWallet(String typeWallet, Long enterpriseId);
     ResponseEntity<MessageResponse> getAllWalletPaginated(String typeWallet, Long enterpriseId, Pageable pageable);
     ResponseEntity<MessageResponse> addWallet(WalletRequest wallet, String typeWallet, Long enterpriseId);
     ResponseEntity<MessageResponse> addDiscounts(Long walletId, List<Long> discountsId);
+    ResponseEntity<MessageResponse> addDiscounts(Long walletId, Long discountId);
 }

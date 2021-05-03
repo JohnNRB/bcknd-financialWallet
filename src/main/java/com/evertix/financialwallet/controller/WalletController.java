@@ -28,8 +28,16 @@ public class WalletController {
     @Autowired
     WalletService walletService;
 
+    @GetMapping("/all")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "View All Wallet", description = "View All Wallet",
+            security = @SecurityRequirement(name = "bearerAuth"), tags = {"Wallet"})
+    public ResponseEntity<MessageResponse> getAll() {
+        return this.walletService.getAllWallet();
+    }
+
     @GetMapping("/")
-    // @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "View All Wallet by Type Wallet and Enterprise", description = "View All Wallet by Type Wallet and Enterprise",
             security = @SecurityRequirement(name = "bearerAuth"), tags = {"Wallet"})
     public ResponseEntity<MessageResponse> getAll(@RequestParam String typeWallet,
@@ -38,7 +46,7 @@ public class WalletController {
     }
 
     @GetMapping("/paged")
-    // @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "View All Wallet paginated by Type Wallet and Enterprise", description = "View All Wallet paginated by Type Wallet and Enterprise",
             parameters = {
                     @Parameter(in = ParameterIn.QUERY
@@ -57,8 +65,16 @@ public class WalletController {
         return this.walletService.getAllWalletPaginated(typeWallet, enterpriseId, pageable);
     }
 
+    @GetMapping("/{walletId}")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "View Wallet by ID", description = "View Wallet by ID",
+            security = @SecurityRequirement(name = "bearerAuth"), tags = {"Wallet"})
+    public ResponseEntity<MessageResponse> getAll(@PathVariable Long walletId) {
+        return this.walletService.getWallet(walletId);
+    }
+
     @PostMapping("/add")
-    // @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Add Wallet", description = "Add Wallet",
             security = @SecurityRequirement(name = "bearerAuth"), tags = {"Wallet"})
     public ResponseEntity<MessageResponse> add(@RequestBody @Valid WalletRequest wallet,
@@ -67,12 +83,21 @@ public class WalletController {
         return this.walletService.addWallet(wallet, typeWallet, enterpriseId);
     }
 
-    @PostMapping("/addDiscounts")
-    // @PreAuthorize("isAuthenticated()")
-    @Operation(summary = "Add Discounts in Wallet", description = "Add Discounts in Wallet",
+    @PostMapping("/addDiscountsArray")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "Add Discounts in Wallet with Array", description = "Add Discounts in Wallet with Array",
             security = @SecurityRequirement(name = "bearerAuth"), tags = {"Wallet"})
     public ResponseEntity<MessageResponse> addDiscountsArray(@RequestParam Long walletId,
                                                              @RequestBody List<Long> discountId) {
+        return this.walletService.addDiscounts(walletId, discountId);
+    }
+
+    @PostMapping("/addDiscounts")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "Add Discounts in Wallet", description = "Add Discounts in Wallet",
+            security = @SecurityRequirement(name = "bearerAuth"), tags = {"Wallet"})
+    public ResponseEntity<MessageResponse> addDiscountsArray(@RequestParam Long walletId,
+                                                             @RequestParam Long discountId) {
         return this.walletService.addDiscounts(walletId, discountId);
     }
 }

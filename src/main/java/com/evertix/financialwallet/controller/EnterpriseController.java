@@ -54,12 +54,12 @@ public class EnterpriseController {
         return this.enterpriseService.getAllEnterprisesPaginated(managerId, pageable);
     }
 
-    @PostMapping("/economicActivity/{economicActivityId}")
+    @PostMapping("/add")
     @PreAuthorize("isAuthenticated()")
-    @Operation(summary = "Update Enterprise", description = "Update Enterprise",
+    @Operation(summary = "Add Enterprise", description = "Add Enterprise",
             security = @SecurityRequirement(name = "bearerAuth"), tags = {"Enterprise"})
     public ResponseEntity<MessageResponse> add(@RequestBody @Valid EnterpriseRequest enterprise,
-                                               @PathVariable Long economicActivityId,
+                                               @RequestParam Long economicActivityId,
                                                @RequestParam Long managerId){
         return this.enterpriseService.addEnterprise(enterprise, economicActivityId, managerId);
     }

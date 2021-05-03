@@ -21,8 +21,16 @@ public class DiscountController {
     @Autowired
     DiscountService discountService;
 
+    @GetMapping("/all")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "View All Discount", description = "View All Discount",
+            security = @SecurityRequirement(name = "bearerAuth"), tags = {"Discount"})
+    public ResponseEntity<MessageResponse> getAll() {
+        return this.discountService.getAllDiscount();
+    }
+
     @PostMapping("/add")
-    // @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Add Discount", description = "Add Discount",
             security = @SecurityRequirement(name = "bearerAuth"), tags = {"Discount"})
     public ResponseEntity<MessageResponse> add(@RequestBody @Valid DiscountRequest discount,

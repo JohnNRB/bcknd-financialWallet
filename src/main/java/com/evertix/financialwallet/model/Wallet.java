@@ -27,9 +27,16 @@ public class Wallet implements Serializable {
     @Size(max = 30)
     private String currency;
 
+    @Max(value = 9999)
+    private Integer daysTotalPeriod;
+
     @DecimalMin(value = "0.00")
     @Digits(integer = 6, fraction = 2)
     private BigDecimal valueTotalReceived;
+
+    @DecimalMin(value = "0.00")
+    @Digits(integer = 6, fraction = 2)
+    private BigDecimal valueTotalDelivered;
 
     @DecimalMin(value = "0.00")
     @Digits(integer = 3, fraction = 7)
